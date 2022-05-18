@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#svelte {
+	@apply flex h-screen w-screen;
+}
+
+body {
+	background-color: #101020;
+}
