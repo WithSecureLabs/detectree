@@ -4,6 +4,8 @@
 
 Detectree is a data visualisation tool for blue teams. It provides a graphical representation of detection data, which allows an analyst generate almost instant opinions about the nature of the underlying activity and to understand complex relationships between the data points. Ultimately, this can help reduce response time, reduce alert fatigue and facilitate communication between analysts within the teams.
 
+Detectree is written in svelte and based on the [force-graph](https://github.com/vasturiano/force-graph) javascript library.
+
 ---
 
 ## Getting Started
