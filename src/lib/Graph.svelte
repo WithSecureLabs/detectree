@@ -11,7 +11,7 @@
 	import registryIcon from '@mdi/svg/svg/bookmark-box-multiple.svg?url';
 	import serverIcon from '@mdi/svg/svg/server.svg?url';
 	import fileIcon from '@mdi/svg/svg/file.svg?url';
-	import { colorToHex } from '$lib/utils';
+	import { colorToHex, escapeHtml } from '$lib/utils';
 	import Loading from '$lib/Loading.svelte';
 
 	let ForceGraph;
@@ -93,7 +93,6 @@
 			return;
 		}
 
-		//const scratch = {};
 		myGraph.nodeVisibility((e) => {
 			if (e['group'] === nodeType) {
 				// we need to hide the link as well
@@ -189,17 +188,15 @@
 
 		// add the user if available
 		if (!node.users && entry['user']) {
-			// if we do not have users set and we have a user
-			node.users = {};
+			node.users = new Set();
+			node.users.add(entry['user']);
 		} else if (entry['user']) {
-			node.users[entry['user']] = 1;
+			node.users.add(entry['user']);
 		}
 
-		// add the command line args if available
+		// add the command line args if available, command line should be unique
 		if (!node.cmdl && entry['commandLine']) {
-			node.cmdl = {};
-		} else if (entry['commandLine']) {
-			node.cmdl[entry['commandLine']] = 1;
+			node.cmdl = escapeHtml(entry['commandLine']);
 		}
 	}
 
@@ -249,7 +246,9 @@
 					// c. we have enough info to create or check the parent node
 					let parentId = `${entry['parentProcess']}:${entry['ppid']}`;
 
-					addNode(parentId, gData['nodes'], entry, 0);
+					// Since we are only using severity from the entry when adding a node we do something slightly different here
+					// TODO: might be worth checking if this can be improved
+					addNode(parentId, gData['nodes'], { severity: 'default' }, 0);
 
 					// d. connect parent and child
 					let link = { source: parentId, target: id, type: 'spawn' };
@@ -286,7 +285,7 @@
 				} else if (entry['type'] == 'injection') {
 					// e. we need to do something slightly different for injection nodes
 					let targetId = `${entry['targetProcess']}:${entry['targetPid']}`;
-					addNode(targetId, gData['nodes'], entry, 0);
+					addNode(targetId, gData['nodes'], { severity: 'default' }, 0);
 					// g. now we can connect the nodes
 					let link = { source: id, target: targetId, type: 'injection' };
 					let linkId = id + targetId + link.type;
@@ -413,15 +412,14 @@
 			}
 			if (node.users) {
 				res.push('USERS');
-				for (var user in node.users) {
-					res.push(`<p style="margin-left:1em">${user}</p>`);
+				var usersArray = Array.from(node.users);
+				for (var i in usersArray) {
+					res.push(`<p style="margin-left:1em">${usersArray[i]}</p>`);
 				}
 			}
 			if (node.cmdl) {
 				res.push('Command Line');
-				for (var cmd in node.cmdl) {
-					res.push(`<p style="margin-left:1em">${cmd}</p>`);
-				}
+				res.push(`<p style="margin-left:1em">${node.cmdl}</p>`);
 			}
 			return res.join('<br>');
 		});

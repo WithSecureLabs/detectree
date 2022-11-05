@@ -38,3 +38,20 @@ export function colorToHex(color: string): string {
 	}
 	return rgb;
 }
+
+export function escapeHtml(string: string): string {
+	// https://github.com/janl/mustache.js/blob/master/mustache.js#L73
+	const entityMap = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+		'/': '&#x2F;',
+		'`': '&#x60;',
+		'=': '&#x3D;'
+	};
+	return String(string).replace(/[&<>"'`=\/]/g, function fromEntityMap(s) {
+		return entityMap[s];
+	});
+}
