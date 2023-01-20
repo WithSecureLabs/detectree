@@ -59,6 +59,7 @@ async function getData(backend, id, startDate, endDate, mappings) {
 		for (let i = 0; i < result.hits.hits.length; i++) {
 			const translatedObject = {};
 			let selectedMapping = undefined;
+			console.log(result.hits.hits[i]);
 
 			// find the right mapping for the type of data we are looking at
 			for (let j = 0; j < mappings.length; j++) {
@@ -69,13 +70,14 @@ async function getData(backend, id, startDate, endDate, mappings) {
 			}
 
 			if (selectedMapping) {
-				for (const mapping in selectedMapping['mapping']) {
+				for (const mapping in selectedMapping) {
 					translatedObject[mapping] = getValue(
-						selectedMapping['mapping'][mapping],
+						selectedMapping[mapping],
 						result.hits.hits[i]['_source']
 					);
 				}
 				translatedObject['type'] = selectedMapping['kind'];
+				console.log(translatedObject);
 				data.push(translatedObject);
 			}
 		}
